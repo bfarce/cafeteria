@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comandas Cafetería - Sistema POS</title>
+    <style>
+        :root {
+            --bg-main: #fcfaf7;
+            --bg-sidebar: #2c1d11;
+            --primary: #6f4e37;
+            --primary-light: #a67c52;
+            --accent: #d4a373;
+            --cream: #f4ebd9;
+            --dark: #1a120b;
+            --text-muted: #8c7e74;
+            --success: #52b788;
+            --warning: #f7b731;
+            --danger: #eb3b5a;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            color: var(--cream);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem 1rem;
+            z-index: 100;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 1rem 2rem 1rem;
+            border-bottom: 1px solid rgba(244, 235, 217, 0.1);
+        }
+
+        .brand svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        .menu-nav {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: var(--cream);
+            text-decoration: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            opacity: 0.75;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(214, 163, 115, 0.15);
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        .menu-item.active {
+            background-color: var(--accent);
+            color: var(--bg-sidebar);
+            font-weight: 600;
+        }
+
+        .menu-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .sidebar-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(244, 235, 217, 0.1);
+            padding-top: 1rem;
+        }
+
+        /* --- MAIN CONTENT CONTAINER --- */
+        .main-content {
+            flex-grow: 1;
+            height: 100%;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .view-header {
+            margin-bottom: 2rem;
+        }
+
+        .view-header h2 {
+            font-size: 1.75rem;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .view-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* --- UTILITIES & COMPONENTS --- */
+        .grid-pos {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary { background-color: var(--primary); color: #fff; }
+        .btn-primary:hover { background-color: var(--primary-light); }
+        .btn-accent { background-color: var(--accent); color: var(--dark); }
+        .btn-accent:hover { opacity: 0.9; }
+        .btn-danger { background-color: rgba(235, 59, 90, 0.1); color: var(--danger); }
+        .btn-danger:hover { background-color: var(--danger); color: #fff; }
+        .btn-success { background-color: var(--success); color: #fff; }
+        .btn-success:hover { opacity: 0.9; }
+
+        /* --- MÓDULO 1: MESAS --- */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .table-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.25rem;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            border: 2px solid transparent;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .table-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .table-card.selected {
+            border-color: var(--accent);
+            background-color: var(--cream);
+        }
+
+        .table-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-disponible { background-color: rgba(82, 183, 136, 0.15); color: var(--success); }
+        .status-ocupada { background-color: rgba(247, 183, 49, 0.15); color: var(--warning); }
+        .status-listo { background-color: rgba(111, 78, 55, 0.15); color: var(--primary); }
+
+        /* CATEGORÍAS Y PRODUCTOS */
+        .categories-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .category-btn {
+            padding: 8px 18px;
+            border-radius: 20px;
+            background-color: #fff;
+            border: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .category-btn.active, .category-btn:hover {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .product-card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .product-img {
+            height: 120px;
+            width: 100%;
+            object-fit: cover;
+            background-color: var(--cream);
+        }
+
+        .product-info {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .product-price {
+            color: var(--primary-light);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        /* PEDIDO ACTIVO PANEL */
+        .order-panel {
+            position: sticky;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 7rem);
+        }
+
+        .order-items {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin: 1rem 0;
+            padding-right: 4px;
+            min-height: 180px;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.08);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .item-details h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .item-details span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .qty-btn:hover { background-color: var(--cream); }
+
+        .order-totals {
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding-top: 1rem;
+            margin-top: auto;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .total-row.final {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+            padding-top: 8px;
+        }
+
+        .order-notes {
+            width: 100%;
+            height: 50px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 8px;
+            font-size: 0.8rem;
+            resize: none;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* ÓRDENES ACTIVAS PANEL */
+        .active-orders-section {
+            margin-top: 3rem;
+        }
+
+        .active-orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .active-order-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--warning);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .active-order-card.ready {
+            border-left-color: var(--success);
+        }
+
+        .ao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: 6px;
+        }
+
+        .ao-body {
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .ao-footer {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* --- HISTORIAL --- */
+        .filters-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .input-field {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .history-table th, .history-table td {
+            padding: 14px 18px;
+            text-align: left;
+        }
+
+        .history-table th {
+            background-color: var(--primary);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .history-table tr {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .history-table tr:hover {
+            background-color: var(--bg-main);
+        }
+
+        .detail-row {
+            background-color: var(--bg-main);
+            display: none;
+        }
+
+        .detail-container {
+            padding: 15px;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        /* --- DASHBOARD VENTAS --- */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .metric-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background-color: var(--cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            fill: var(--primary);
+        }
+
+        .metric-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .metric-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .chart-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .custom-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            padding-top: 20px;
+            border-bottom: 2px solid var(--dark);
+        }
+
+        .chart-bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .chart-bar {
+            width: 35px;
+            background-color: var(--accent);
+            border-radius: 6px 6px 0 0;
+            transition: height 1s ease;
+            position: relative;
+        }
+
+        .chart-bar:hover { background-color: var(--primary); }
+
+        .chart-bar::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .chart-label {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            color: var(--text-muted);
+        }
+
+        /* --- ADMINISTRACIÓN --- */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .grid-pos, .chart-section, .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            .tables-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <svg viewBox="0 0 24 24"><path d="M2 21h18v-2H2v2M20 8h-2V5h2v3M4 19h12v-4H4v4m0-6h12V9H4v4m0-6h12V5H4v4m16-4a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-2v2h-2V3h2a3 3 0 0 1 3 3z"/></svg>
+                <h1>Comandas POS</h1>
+            </div>
+            <ul class="menu-nav">
+                <li class="menu-item active" onclick="switchView('ordenes', this)">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    Órdenes
+                </li>
+                <li class="menu-item" onclick="switchView('historial', this)">
+                    <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 7 7 7.07 7.07 0 0 1-6-3.38l-1.42 1.42A8.92 8.92 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                    Historial
+                </li>
+                <li class="menu-item" onclick="switchView('ventas', this)">
+                    <svg viewBox="0 0 24 24"><path d="M5 19.23V4H3v16h16v-2H5.23L19 4.23L17.77 3L5 15.77V19.23z"/></svg>
+                    Ventas
+                </li>
+                <li class="menu-item" onclick="switchView('administracion', this)">
+                    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                    Administración
+                </li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <p>Cafetería v1.1.0</p>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <section id="view-ordenes" class="view-section active">
+            <div class="view-header">
+                <h2>Panel de Comandas</h2>
+                <p>Gestiona mesas, asigna pedidos y despacha en tiempo real.</p>
+            </div>
+
+            <div class="section-title">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3h1c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h1zm1-12h14v5H5V6z"/></svg>
+                Control de Mesas
+            </div>
+            <div class="tables-grid" id="tables-container">
+                </div>
+
+            <div class="grid-pos">
+                <div>
+                    <div class="categories-bar" id="categories-container">
+                        </div>
+                    <div class="products-grid" id="products-container">
+                        </div>
+                </div>
+
+                <div class="card order-panel">
+                    <h3 class="section-title" id="order-title">Mesa Seleccionada: Ninguna</h3>
+                    <div class="order-items" id="order-items-container">
+                        <p style="color: var(--text-muted); text-align:center; padding-top: 40px;">Selecciona una mesa para iniciar un pedido.</p>
+                    </div>
+                    <div class="order-totals">
+                        <div class="total-row"><span>Subtotal:</span><span id="txt-subtotal">$0 COP</span></div>
+                        <div class="total-row"><span>Impuestos (0%):</span><span id="txt-iva">$0 COP</span></div>
+                        <div class="total-row final"><span>Total:</span><span id="txt-total">$0 COP</span></div>
+                        <textarea class="order-notes" id="order-notes" placeholder="Notas especiales del pedido... (ej. sin azúcar, bien caliente)"></textarea>
+                        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;" onclick="sendOrder()">
+                            Enviar Orden a Cocina
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="active-orders-section">
+                <div class="section-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M2 14.97V11h2v3.97h16V11h2v3.97c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2zM12 4.03L16.18 8H13v4h-2V8H7.82L12 4.03z"/></svg>
+                    Monitor de Órdenes Activas
+                </div>
+                <div class="active-orders-grid" id="active-orders-container">
+                    </div>
+            </div>
+        </section>
+
+        <section id="view-historial" class="view-section">
+            <div class="view-header">
+                <h2>Historial de Órdenes</h2>
+                <p>Consulta el registro de todas las transacciones finalizadas.</p>
+            </div>
+            <div class="card">
+                <div class="filters-bar">
+                    <input type="date" class="input-field" id="filter-date" onchange="renderHistory()">
+                    <button class="btn btn-accent" onclick="exportHistory()">🗋 Exportar Excel (Simulado)</button>
+                </div>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>ID Orden</th>
+                            <th>Mesa</th>
+                            <th>Fecha / Hora</th>
+                            <th>Total Pagado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="view-ventas" class="view-section">
+            <div class="view-header">
+                <h2>Dashboard de Ventas</h2>
+                <p>Métricas y rendimiento comercial de la cafetería.</p>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M21 18v2H3v-2h18M5 16h3V8H5v8m6 0h3V5h-3v11m6 0h3v-7h-3v7z"/></svg></div>
+                    <div class="metric-info"><h3 id="m-total-ventas">$0</h3><p>Ventas del Día</p></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2z"/></svg></div>
+                    <div class="metric-info"><h3 id="m-total-ordenes">0</h3><p>Órdenes Totales</p></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg></div>
+                    <div class="metric-info"><h3 id="m-top-producto">-</h3><p>Top Producto</p></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3h1c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H3c-1.1 0-2-.9-2-2v10c0 1.1.9 2 2 2h1zm1-12h14v5H5V6z"/></svg></div>
+                    <div class="metric-info"><h3 id="m-mesas-activas">0</h3><p>Mesas Activas</p></div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="card">
+                    <h3 class="section-title">Ventas estimadas por Categoría</h3>
+                    <div class="custom-chart" id="analytics-chart">
+                        </div>
+                </div>
+                <div class="card">
+                    <h3 class="section-title">Buscar Órdenes</h3>
+                    <input type="text" class="input-field" style="width: 100%; margin-bottom: 1rem;" id="search-pos-table" placeholder="Filtrar por número de mesa..." oninput="searchSalesByTable()">
+                    <div id="sales-recent-list" style="max-height: 150px; overflow-y:auto; font-size: 0.85rem;">
+                        </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-administracion" class="view-section">
+            <div class="view-header">
+                <h2>Panel Administrativo</h2>
+                <p>Configura el catálogo de productos, precios y distribución de la sala.</p>
+            </div>
+
+            <div class="admin-grid">
+                <div class="card">
+                    <h3 class="section-title" id="form-admin-title">Agregar / Editar Producto</h3>
+                    <form id="product-form" onsubmit="saveProduct(event)">
+                        <input type="hidden" id="form-product-id">
+                        <div class="form-group">
+                            <label>Nombre del Producto</label>
+                            <input type="text" id="form-product-name" class="input-field" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría</label>
+                            <select id="form-product-category" class="input-field" required>
+                                <option value="Cafés">Cafés</option>
+                                <option value="Bebidas">Bebidas</option>
+                                <option value="Postres">Postres</option>
+                                <option value="Snacks">Snacks</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Precio (COP)</label>
+                            <input type="number" id="form-product-price" class="input-field" required>
+                        </div>
+                        <div class="form-group">
+                            <label>URL Imagen (Placeholder por defecto si vacío)</label>
+                            <input type="text" id="form-product-img" class="input-field">
+                        </div>
+                        <div style="display:flex; gap: 10px; margin-top: 15px;">
+                            <button type="submit" class="btn btn-success" style="flex-grow: 1; justify-content:center;">Guardar</button>
+                            <button type="button" class="btn btn-danger" onclick="clearAdminForm()">Cancelar</button>
+                        </div>
+                    </form>
+
+                    <div style="margin-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1rem;">
+                        <h3 class="section-title">Estructura de Mesas</h3>
+                        <button class="btn btn-primary" onclick="addTableConfig()" style="width: 100%; justify-content: center;">+ Agregar Nueva Mesa</button>
+                        <button class="btn btn-danger" onclick="removeLastTableConfig()" style="width: 100%; justify-content: center; margin-top: 8px;">- Eliminar Última Mesa</button>
+                    </div>
+                </div>
+
+                <div class="card" style="overflow-x: auto;">
+                    <h3 class="section-title">Inventario de Productos Activos</h3>
+                    <table class="history-table" style="box-shadow: none;">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // --- DATA DE BASE (ESTADO INICIAL) ---
+        const defaultProducts = [
+            { id: 1, name: 'Capuccino Premium', category: 'Cafés', price: 7500, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400' },
+            { id: 2, name: 'Latte Vainilla', category: 'Cafés', price: 8200, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400' },
+            { id: 3, name: 'Café Americano 8oz', category: 'Cafés', price: 4500, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400' },
+            { id: 4, name: 'Cheesecake Frutos Rojos', category: 'Postres', price: 11000, img: 'https://images.unsplash.com/photo-1524351199679-46cddf530c04?w=400' },
+            { id: 5, name: 'Brownie con Helado', category: 'Postres', price: 9500, img: 'https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=400' },
+            { id: 6, name: 'Té Frío de la Casa', category: 'Bebidas', price: 6000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400' },
+            { id: 7, name: 'Sandwich de Jamón Serrano', category: 'Snacks', price: 14500, img: 'https://images.unsplash.com/photo-1521390188846-e2a3a97453a0?w=400' },
+            { id: 8, name: 'Croissant de Mantequilla', category: 'Snacks', price: 5500, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400' }
+        ];
+
+        // --- MANEJO DE ESTADO CENTRAL CON LOCALSTORAGE ---
+        let products = JSON.parse(localStorage.getItem('pos_products')) || defaultProducts;
+        let tables = JSON.parse(localStorage.getItem('pos_tables')) || [
+            { id: 1, name: 'Mesa 1', status: 'disponible' },
+            { id: 2, name: 'Mesa 2', status: 'disponible' },
+            { id: 3, name: 'Mesa 3', status: 'disponible' },
+            { id: 4, name: 'Mesa 4', status: 'disponible' }
+        ];
+        let activeOrders = JSON.parse(localStorage.getItem('pos_active_orders')) || [];
+        let historyOrders = JSON.parse(localStorage.getItem('pos_history_orders')) || [];
+
+        let selectedTableId = null;
+        let currentCart = {}; // Estructura: { tableId: { items: { productId: qty }, notes: "" } }
+        let currentCategoryFilter = 'Todos';
+
+        // --- SISTEMA CORE: PERSISTENCIA ---
+        function commitState() {
+            localStorage.setItem('pos_products', JSON.stringify(products));
+            localStorage.setItem('pos_tables', JSON.stringify(tables));
+            localStorage.setItem('pos_active_orders', JSON.stringify(activeOrders));
+            localStorage.setItem('pos_history_orders', JSON.stringify(historyOrders));
+            updateMetrics();
+        }
+
+        // --- NAVEGACIÓN ---
+        function switchView(viewId, element) {
+            document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            element.classList.add('active');
+
+            if(viewId === 'historial') renderHistory();
+            if(viewId === 'ventas') renderDashboard();
+            if(viewId === 'administracion') renderAdminInventory();
+        }
+
+        // --- INICIALIZACIÓN ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTables();
+            renderCategories();
+            renderProducts();
+            renderActiveOrdersMonitor();
+            updateMetrics();
+        });
+
+        // --- MÓDULO 1: RENDERS ---
+        function renderTables() {
+            const container = document.getElementById('tables-container');
+            container.innerHTML = '';
+            tables.forEach(table => {
+                const card = document.createElement('div');
+                card.className = `table-card ${selectedTableId === table.id ? 'selected' : ''}`;
+                card.onclick = () => selectTable(table.id);
+
+                let badgeClass = 'status-disponible';
+                let labelStatus = 'Disponible';
+                if(table.status === 'ocupada') { badgeClass = 'status-ocupada'; labelStatus = 'Ocupada'; }
+                if(table.status === 'listo') { badgeClass = 'status-listo'; labelStatus = 'Pedido Listo'; }
+
+                card.innerHTML = `
+                    <div class="table-number">${table.name}</div>
+                    <span class="badge ${badgeClass}">${labelStatus}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            const cats = ['Todos', 'Cafés', 'Bebidas', 'Postres', 'Snacks'];
+            container.innerHTML = '';
+            cats.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `category-btn ${currentCategoryFilter === cat ? 'active' : ''}`;
+                btn.textContent = cat;
+                btn.onclick = () => {
+                    currentCategoryFilter = cat;
+                    renderCategories();
+                    renderProducts();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+            
+            const filtered = currentCategoryFilter === 'Todos' ? products : products.filter(p => p.category === currentCategoryFilter);
+            
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${p.img || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400'}" class="product-img" alt="${p.name}">
+                    <div class="product-info">
+                        <div>
+                            <div class="product-name">${p.name}</div>
+                            <div class="product-price">$${p.price.toLocaleString('es-CO')} COP</div>
+                        </div>
+                        <button class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem;" onclick="addToCart(${p.id})">+ Agregar</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- SISTEMA DE PEDIDOS (LÓGICA POS) ---
+        function selectTable(tableId) {
+            selectedTableId = tableId;
+            const table = tables.find(t => t.id === tableId);
+            document.getElementById('order-title').textContent = `${table.name}`;
+            
+            if(!currentCart[tableId]) {
+                // Si la mesa ya está ocupada, intentar recuperar orden activa para pre-cargar datos o ver estado
+                const existingOrder = activeOrders.find(o => o.tableId === tableId && o.status !== 'completada');
+                currentCart[tableId] = {
+                    items: existingOrder ? { ...existingOrder.items } : {},
+                    notes: existingOrder ? existingOrder.notes : ""
+                };
+            }
+
+            renderTables();
+            renderCart();
+        }
+
+        function addToCart(productId) {
+            if(!selectedTableId) {
+                alert("Por favor, selecciona una mesa primero.");
+                return;
+            }
+            if(!currentCart[selectedTableId].items[productId]) {
+                currentCart[selectedTableId].items[productId] = 0;
+            }
+            currentCart[selectedTableId].items[productId]++;
+            renderCart();
+        }
+
+        function changeQty(productId, amount) {
+            if(!selectedTableId) return;
+            currentCart[selectedTableId].items[productId] += amount;
+            if(currentCart[selectedTableId].items[productId] <= 0) {
+                delete currentCart[selectedTableId].items[productId];
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('order-items-container');
+            const notesArea = document.getElementById('order-notes');
+            
+            if(!selectedTableId) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align:center; padding-top: 40px;">Selecciona una mesa para iniciar un pedido.</p>';
+                return;
+            }
+
+            const cart = currentCart[selectedTableId];
+            notesArea.value = cart.notes;
+            container.innerHTML = '';
+
+            let subtotal = 0;
+            const itemKeys = Object.keys(cart.items);
+
+            if(itemKeys.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align:center; padding-top: 40px;">El pedido está vacío.</p>';
+                updateTotals(0);
+                return;
+            }
+
+            itemKeys.forEach(pId => {
+                const prod = products.find(p => p.id == pId);
+                if(!prod) return;
+                const qty = cart.items[pId];
+                const itemCost = prod.price * qty;
+                subtotal += itemCost;
+
+                const row = document.createElement('div');
+                row.className = 'order-item';
+                row.innerHTML = `
+                    <div class="item-details">
+                        <h4>${prod.name}</h4>
+                        <span>$${prod.price.toLocaleString('es-CO')} c/u</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="qty-btn" onclick="changeQty(${pId}, -1)">-</button>
+                        <span>${qty}</span>
+                        <button class="qty-btn" onclick="changeQty(${pId}, 1)">+</button>
+                        <span style="font-weight:600; margin-left:10px; min-width:70px; text-align:right;">$${itemCost.toLocaleString('es-CO')}</span>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            // Escuchar cambios en notas de la mesa activa
+            notesArea.oninput = (e) => { currentCart[selectedTableId].notes = e.target.value; };
+            updateTotals(subtotal);
+        }
+
+        function updateTotals(subtotal) {
+            const ivaValue = 0; // Configurable placeholder (0%)
+            const total = subtotal + (subtotal * ivaValue);
+            document.getElementById('txt-subtotal').textContent = `$${subtotal.toLocaleString('es-CO')} COP`;
+            document.getElementById('txt-iva').textContent = `$${(subtotal * ivaValue).toLocaleString('es-CO')} COP`;
+            document.getElementById('txt-total').textContent = `$${total.toLocaleString('es-CO')} COP`;
+        }
+
+        function sendOrder() {
+            if(!selectedTableId) return alert("Ninguna mesa seleccionada.");
+            const cart = currentCart[selectedTableId];
+            if(Object.keys(cart.items).length === 0) return alert("No hay productos agregados para enviar.");
+
+            // Buscar si ya existía una orden activa para esa mesa
+            const activeIdx = activeOrders.findIndex(o => o.tableId === selectedTableId);
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            let totalOrder = 0;
+            Object.keys(cart.items).forEach(id => {
+                const p = products.find(prod => prod.id == id);
+                if(p) totalOrder += p.price * cart.items[id];
+            });
+
+            if(activeIdx > -1) {
+                // Actualizar orden existente
+                activeOrders[activeIdx].items = { ...cart.items };
+                activeOrders[activeIdx].notes = cart.notes;
+                activeOrders[activeIdx].total = totalOrder;
+            } else {
+                // Crear nueva orden
+                const newOrder = {
+                    id: Date.now(),
+                    tableId: selectedTableId,
+                    tableName: tables.find(t => t.id === selectedTableId).name,
+                    items: { ...cart.items },
+                    notes: cart.notes,
+                    time: timeStr,
+                    date: now.toISOString().split('T')[0],
+                    status: 'pendiente',
+                    total: totalOrder
+                };
+                activeOrders.push(newOrder);
+            }
+
+            // Cambiar estado de la mesa
+            const table = tables.find(t => t.id === selectedTableId);
+            if(table.status === 'disponible') table.status = 'ocupada';
+
+            commitState();
+            renderTables();
+            renderActiveOrdersMonitor();
+            alert(`Orden enviada con éxito para la ${table.name}`);
+        }
+
+        // --- MONITOR DE ÓRDENES ACTIVAS (BARRA / COCINA) ---
+        function renderActiveOrdersMonitor() {
+            const container = document.getElementById('active-orders-container');
+            container.innerHTML = '';
+
+            if(activeOrders.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align:center;">No hay órdenes activas en preparación.</p>';
+                return;
+            }
+
+            activeOrders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = `active-order-card ${order.status === 'lista' ? 'ready' : ''}`;
+                
+                let orderItemsHtml = '';
+                Object.keys(order.items).forEach(pId => {
+                    const prod = products.find(p => p.id == pId);
+                    if(prod) orderItemsHtml += `<li>${order.items[pId]}x ${prod.name}</li>`;
+                });
+
+                let statusBadge = `<span class="badge status-ocupada">Pendiente</span>`;
+                let actionBtn = `<button class="btn btn-primary" style="padding:6px 12px; font-size:0.75rem;" onclick="advanceOrderStatus(${order.id})">Preparar</button>`;
+                
+                if(order.status === 'preparacion') {
+                    statusBadge = `<span class="badge status-ocupada" style="background-color:#ffeaa7; color:#d63031;">En Cocina</span>`;
+                    actionBtn = `<button class="btn btn-accent" style="padding:6px 12px; font-size:0.75rem;" onclick="advanceOrderStatus(${order.id})">Listo</button>`;
+                } else if(order.status === 'lista') {
+                    statusBadge = `<span class="badge status-listo">Listo para Despacho</span>`;
+                    actionBtn = `<button class="btn btn-success" style="padding:6px 12px; font-size:0.75rem;" onclick="completeOrder(${order.id})">Entregar y Facturar</button>`;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="ao-header">
+                            <strong>${order.tableName}</strong>
+                            <span>${order.time}</span>
+                        </div>
+                        <div class="ao-body">
+                            <ul style="list-style:none; padding-left:0; margin-bottom:8px;">${orderItemsHtml}</ul>
+                            ${order.notes ? `<p style="font-style:italic; color:var(--primary-light); font-size:0.8rem;">Nota: ${order.notes}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="ao-footer" style="justify-content: space-between; align-items:center; margin-top:10px;">
+                        ${statusBadge}
+                        ${actionBtn}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function advanceOrderStatus(orderId) {
+            const order = activeOrders.find(o => o.id === orderId);
+            if(!order) return;
+
+            if(order.status === 'pendiente') {
+                order.status = 'preparacion';
+            } else if(order.status === 'preparacion') {
+                order.status = 'lista';
+                const table = tables.find(t => t.id === order.tableId);
+                if(table) table.status = 'listo';
+            }
+            commitState();
+            renderTables();
+            renderActiveOrdersMonitor();
+        }
+
+        function completeOrder(orderId) {
+            const orderIdx = activeOrders.findIndex(o => o.id === orderId);
+            if(orderIdx === -1) return;
+            
+            const order = activeOrders[orderIdx];
+            
+            // Pasar a historial
+            historyOrders.push({ ...order, status: 'completada' });
+            
+            // Liberar Mesa
+            const table = tables.find(t => t.id === order.tableId);
+            if(table) table.status = 'disponible';
+
+            // Limpiar carro de esa mesa
+            delete currentCart[order.tableId];
+            if(selectedTableId === order.tableId) {
+                selectedTableId = null;
+                document.getElementById('order-title').textContent = "Mesa Seleccionada: Ninguna";
+                renderCart();
+            }
+
+            // Quitar de activas
+            activeOrders.splice(orderIdx, 1);
+
+            commitState();
+            renderTables();
+            renderActiveOrdersMonitor();
+            
+            // Disparar Recibo Impreso Virtual
+            printReceipt(order);
+        }
+
+        // --- MÓDULO 2: HISTORIAL LOGIC ---
+        function renderHistory() {
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+            
+            const filterDate = document.getElementById('filter-date').value;
+            let filtered = historyOrders;
+
+            if(filterDate) {
+                filtered = historyOrders.filter(o => o.date === filterDate);
+            }
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No se encontraron órdenes finalizadas.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => toggleHistoryDetail(order.id);
+                tr.innerHTML = `
+                    <td>#${order.id.toString().slice(-6)}</td>
+                    <td><strong>${order.tableName}</strong></td>
+                    <td>${order.date} ${order.time}</td>
+                    <td style="font-weight:700; color:var(--primary);">$${order.total.toLocaleString('es-CO')}</td>
+                    <td><button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem;" onclick="event.stopPropagation(); printReceipt(${JSON.stringify(order).replace(/"/g, '&quot;')})">Reimprimir</button></td>
+                `;
+
+                // Fila oculta de detalle
+                const trDetail = document.createElement('tr');
+                trDetail.className = 'detail-row';
+                trDetail.id = `detail-${order.id}`;
+                
+                let detailsHtml = '';
+                Object.keys(order.items).forEach(pId => {
+                    const prod = products.find(p => p.id == pId);
+                    if(prod) detailsHtml += `<div>${order.items[pId]}x ${prod.name} ($${(prod.price * order.items[pId]).toLocaleString('es-CO')})</div>`;
+                });
+
+                trDetail.innerHTML = `
+                    <td colspan="5">
+                        <div class="detail-container">
+                            <strong>Detalle del consumo:</strong>
+                            ${detailsHtml}
+                            ${order.notes ? `<div style="margin-top:6px; font-style:italic;">Notas: ${order.notes}</div>` : ''}
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+                tbody.appendChild(trDetail);
+            });
+        }
+
+        function toggleHistoryDetail(id) {
+            const row = document.getElementById(`detail-${id}`);
+            if(row.style.display === 'table-row') {
+                row.style.display = 'none';
+            } else {
+                row.style.display = 'table-row';
+            }
+        }
+
+        function exportHistory() {
+            alert("Simulación de exportación exitosa.\n\nSe ha generado el reporte estructurado en formato CSV con un total de " + historyOrders.length + " registros de ventas.");
+        }
+
+        // --- MÓDULO 3: VENTAS & DASHBOARD ---
+        function updateMetrics() {
+            let salesTodaySum = 0;
+            const nowStr = new Date().toISOString().split('T')[0];
+            
+            historyOrders.forEach(o => {
+                if(o.date === nowStr) salesTodaySum += o.total;
+            });
+
+            const totalOrders = historyOrders.length;
+            const openTables = tables.filter(t => t.status !== 'disponible').length;
+
+            // Encontrar producto estrella
+            let productCounts = {};
+            historyOrders.forEach(o => {
+                Object.keys(o.items).forEach(pId => {
+                    if(!productCounts[pId]) productCounts[pId] = 0;
+                    productCounts[pId] += o.items[pId];
+                });
+            });
+
+            let topProduct = '-';
+            let maxQty = 0;
+            Object.keys(productCounts).forEach(pId => {
+                if(productCounts[pId] > maxQty) {
+                    maxQty = productCounts[pId];
+                    const p = products.find(prod => prod.id == pId);
+                    if(p) topProduct = p.name;
+                }
+            });
+
+            // Escribir en interfaz si los elementos existen
+            if(document.getElementById('m-total-ventas')) {
+                document.getElementById('m-total-ventas').textContent = `$${salesTodaySum.toLocaleString('es-CO')}`;
+                document.getElementById('m-total-ordenes').textContent = totalOrders;
+                document.getElementById('m-top-producto').textContent = topProduct;
+                document.getElementById('m-mesas-activas').textContent = openTables;
+            }
+        }
+
+        function renderDashboard() {
+            updateMetrics();
+            
+            // Generar Gráfica Simple CSS por categoría
+            const chartContainer = document.getElementById('analytics-chart');
+            chartContainer.innerHTML = '';
+
+            let categoriesMetrics = { 'Cafés': 0, 'Bebidas': 0, 'Postres': 0, 'Snacks': 0 };
+            
+            historyOrders.forEach(o => {
+                Object.keys(o.items).forEach(pId => {
+                    const p = products.find(prod => prod.id == pId);
+                    if(p && categoriesMetrics[p.category] !== undefined) {
+                        categoriesMetrics[p.category] += p.price * o.items[pId];
+                    }
+                });
+            });
+
+            const maxVal = Math.max(...Object.values(categoriesMetrics), 1);
+
+            Object.keys(categoriesMetrics).forEach(cat => {
+                const val = categoriesMetrics[cat];
+                const pct = (val / maxVal) * 100;
+
+                const barContainer = document.createElement('div');
+                barContainer.className = 'chart-bar-container';
+                barContainer.innerHTML = `
+                    <div class="chart-bar" data-value="$${(val/1000).toFixed(0)}k" style="height: ${Math.max(pct, 5)}%;"></div>
+                    <div class="chart-label">${cat}</div>
+                `;
+                chartContainer.appendChild(barContainer);
+            });
+
+            searchSalesByTable();
+        }
+
+        function searchSalesByTable() {
+            const query = document.getElementById('search-pos-table').value.toLowerCase();
+            const listContainer = document.getElementById('sales-recent-list');
+            listContainer.innerHTML = '';
+
+            const allSales = [...historyOrders].reverse();
+            const filtered = allSales.filter(s => s.tableName.toLowerCase().includes(query));
+
+            if(filtered.length === 0) {
+                listContainer.innerHTML = '<p style="color:var(--text-muted)">No hay registros equivalentes.</p>';
+                return;
+            }
+
+            filtered.forEach(s => {
+                const item = document.createElement('div');
+                item.style.padding = '6px 0';
+                item.style.borderBottom = '1px solid #f0f0f0';
+                item.innerHTML = `<strong>${s.tableName}</strong> - $${s.total.toLocaleString('es-CO')} <span style="float:right; color:var(--text-muted); font-size:0.75rem;">${s.time}</span>`;
+                listContainer.appendChild(item);
+            });
+        }
+
+        // --- MÓDULO 4: ADMINISTRACIÓN (CRUD DE PRODUCTOS) ---
+        function renderAdminInventory() {
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = '';
+
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="${p.img}" style="width:35px; height:35px; object-fit:cover; border-radius:6px;">
+                            <strong>${p.name}</strong>
+                        </div>
+                    </td>
+                    <td><span class="badge status-disponible" style="color:var(--primary); background:var(--cream);">${p.category}</span></td>
+                    <td><strong>$${p.price.toLocaleString('es-CO')}</strong></td>
+                    <td>
+                        <button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem;" onclick="editProductConfig(${p.id})">Editar</button>
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteProductConfig(${p.id})">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-product-id').value;
+            const name = document.getElementById('form-product-name').value;
+            const category = document.getElementById('form-product-category').value;
+            const price = parseFloat(document.getElementById('form-product-price').value);
+            const img = document.getElementById('form-product-img').value;
+
+            if(id) {
+                // Editar existente
+                const p = products.find(prod => prod.id == id);
+                if(p) {
+                    p.name = name;
+                    p.category = category;
+                    p.price = price;
+                    p.img = img || p.img;
+                }
+            } else {
+                // Nuevo producto
+                const newP = {
+                    id: Date.now(),
+                    name,
+                    category,
+                    price,
+                    img: img || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400'
+                };
+                products.push(newP);
+            }
+
+            commitState();
+            clearAdminForm();
+            renderAdminInventory();
+            renderProducts();
+            alert("Producto guardado correctamente en el catálogo POS.");
+        }
+
+        function editProductConfig(id) {
+            const p = products.find(prod => prod.id == id);
+            if(!p) return;
+            document.getElementById('form-product-id').value = p.id;
+            document.getElementById('form-product-name').value = p.name;
+            document.getElementById('form-product-category').value = p.category;
+            document.getElementById('form-product-price').value = p.price;
+            document.getElementById('form-product-img').value = p.img;
+            document.getElementById('form-admin-title').textContent = "Modificar Producto";
+        }
+
+        function deleteProductConfig(id) {
+            if(!confirm("¿Estás seguro de que deseas remover este producto de la venta?")) return;
+            products = products.filter(p => p.id != id);
+            commitState();
+            renderAdminInventory();
+            renderProducts();
+        }
+
+        function clearAdminForm() {
+            document.getElementById('product-form').reset();
+            document.getElementById('form-product-id').value = '';
+            document.getElementById('form-admin-title').textContent = "Agregar / Editar Producto";
+        }
+
+        function addTableConfig() {
+            const nextNum = tables.length + 1;
+            tables.push({
+                id: Date.now(),
+                name: `Mesa ${nextNum}`,
+                status: 'disponible'
+            });
+            commitState();
+            renderTables();
+            alert(`¡Se ha habilitado la Mesa ${nextNum}!`);
+        }
+
+        // --- SISTEMA IMPRESIÓN RECIBO DE TICKET TÉRMICO ---
+        function removeLastTableConfig() {
+            if(tables.length <= 1) return alert("Se requiere al menos una mesa activa para operar el sistema.");
+            tables.pop();
+            commitState();
+            renderTables();
+        }
+
+        function printReceipt(order) {
+            const printWindow = window.open('', '_blank', 'width=400,height=600');
+            
+            let receiptItemsHtml = '';
+            Object.keys(order.items).forEach(pId => {
+                const prod = products.find(p => p.id == pId);
+                if(prod) {
+                    const cost = prod.price * order.items[pId];
+                    receiptItemsHtml += `
+                        <tr>
+                            <td>${prod.name}<br>${order.items[pId]}x $${prod.price.toLocaleString('es-CO')}</td>
+                            <td style="text-align:right; vertical-align:bottom;">$${cost.toLocaleString('es-CO')}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Factura - ${order.tableName}</title>
+                    <style>
+                        body {
+                            font-family: 'Courier New', Courier, monospace;
+                            width: 280px;
+                            margin: 10px auto;
+                            color: #000;
+                            font-size: 13px;
+                            line-height: 1.4;
+                        }
+                        .text-center { text-align: center; }
+                        .line { border-top: 1px dashed #000; margin: 10px 0; }
+                        table { width: 100%; border-collapse: collapse; }
+                        .totals-table td { padding: 2px 0; }
+                        .btn-print {
+                            background-color: #000;
+                            color: #fff;
+                            border: none;
+                            padding: 8px 16px;
+                            width: 100%;
+                            cursor: pointer;
+                            margin-top: 20px;
+                            font-weight: bold;
+                        }
+                        @media print {
+                            .btn-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="text-center">
+                        <h2 style="margin:0; font-size:16px;">COMANDAS CAFETERÍA</h2>
+                        <p style="margin:2px 0;">NIT: 123456789-1<br>Calle del Café #12-34<br>Pitalito, Huila</p>
+                    </div>
+                    <div class="line"></div>
+                    <div>
+                        <strong>Mesa:</strong> ${order.tableName}<br>
+                        <strong>Ticket:</strong> #${order.id.toString().slice(-6)}<br>
+                        <strong>Fecha:</strong> ${order.date}<br>
+                        <strong>Hora:</strong> ${order.time}
+                    </div>
+                    <div class="line"></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="text-align:left;">Detalle</th>
+                                <th style="text-align:right;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${receiptItemsHtml}
+                        </tbody>
+                    </table>
+                    <div class="line"></div>
+                    <table class="totals-table">
+                        <tr><td>Subtotal:</td><td style="text-align:right;">$${order.total.toLocaleString('es-CO')}</td></tr>
+                        <tr><td>Impuesto (0%):</td><td style="text-align:right;">$0</td></tr>
+                        <tr style="font-weight:bold; font-size:15px;"><td>TOTAL A PAGAR:</td><td style="text-align:right;">$${order.total.toLocaleString('es-CO')}</td></tr>
+                    </table>
+                    <div class="line"></div>
+                    <div class="text-center" style="margin-top:15px;">
+                        <p>¡Gracias por tu visita!</p>
+                        <p style="font-size:11px;">Desarrollado por Sistema POS Café Premium</p>
+                    </div>
+                    <button class="btn-print" onclick="window.print()">Imprimir Ticket Térmico</button>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+    </script>
+</body>
+</html>
