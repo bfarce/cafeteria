@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comandas Cafetería - Sistema POS Responsive</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Comandas</title>
     <style>
         :root {
             --bg-main: #fcfaf7;
@@ -26,59 +26,52 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-main);
             color: var(--dark);
             display: flex;
+            flex-direction: row;
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
-            position: relative;
         }
 
-        /* --- BOTÓN HAMBURGUESA (MÓVIL) --- */
-        .menu-toggle {
-            display: none;
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 200;
-            background-color: var(--bg-sidebar);
-            color: var(--cream);
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .menu-toggle svg { width: 24px; height: 24px; fill: currentColor; }
-
-        /* --- SIDEBAR RE-DISEÑADO --- */
+        /* --- SIDEBAR RESPONSIVE (De Lateral a Barra Superior) --- */
         .sidebar {
             width: 260px;
-            min-width: 260px;
             background-color: var(--bg-sidebar);
             color: var(--cream);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 2rem 1rem;
-            z-index: 150;
+            z-index: 100;
             box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-            transition: var(--transition);
+            flex-shrink: 0;
         }
 
         .brand {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 0 1rem 2rem 1rem;
+            padding: 0 1rem 1.5rem 1rem;
             border-bottom: 1px solid rgba(244, 235, 217, 0.1);
         }
 
-        .brand svg { width: 32px; height: 32px; fill: var(--accent); }
-        .brand h1 { font-size: 1.25rem; font-weight: 700; color: #fff; }
+        .brand svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--accent);
+        }
+
+        .brand h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+        }
 
         .menu-nav {
             list-style: none;
@@ -101,6 +94,7 @@
             font-weight: 500;
             transition: var(--transition);
             opacity: 0.75;
+            white-space: nowrap;
         }
 
         .menu-item:hover, .menu-item.active {
@@ -115,34 +109,63 @@
             font-weight: 600;
         }
 
-        .menu-item svg { width: 20px; height: 20px; fill: currentColor; }
-        .sidebar-footer { text-align: center; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid rgba(244, 235, 217, 0.1); padding-top: 1rem; }
+        .menu-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
 
-        /* --- MAIN CONTENT --- */
+        .sidebar-footer {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(244, 235, 217, 0.1);
+            padding-top: 1rem;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
         .main-content {
             flex-grow: 1;
             height: 100%;
             overflow-y: auto;
             padding: 2rem;
-            transition: var(--transition);
+            width: 100%;
         }
 
-        .view-section { display: none; animation: fadeIn 0.4s ease-in-out forwards; }
-        .view-section.active { display: block; }
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .view-section.active {
+            display: block;
+        }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .view-header { margin-bottom: 2rem; }
-        .view-header h2 { font-size: 1.75rem; color: var(--dark); font-weight: 700; }
-        .view-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+        .view-header {
+            margin-bottom: 1.5rem;
+        }
 
-        /* --- GRID PRINCIPAL POS --- */
+        .view-header h2 {
+            font-size: 1.6rem;
+            color: var(--dark);
+            font-weight: 700;
+        }
+
+        .view-header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        /* --- COMPONENTES Y REJILLAS FLUIDAS --- */
         .grid-pos {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 360px;
             gap: 1.5rem;
             align-items: start;
         }
@@ -150,13 +173,14 @@
         .card {
             background: #fff;
             border-radius: 16px;
-            padding: 1.5rem;
+            padding: 1.25rem;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.01);
+            max-width: 100%;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 10px 16px;
             border-radius: 10px;
             border: none;
             font-weight: 600;
@@ -164,6 +188,7 @@
             transition: var(--transition);
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             font-size: 0.9rem;
         }
@@ -175,9 +200,8 @@
         .btn-danger:hover { background-color: var(--danger); color: #fff; }
         .btn-success { background-color: var(--success); color: #fff; }
 
-        /* --- MESAS --- */
         .section-title {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             margin-bottom: 1rem;
             color: var(--primary);
@@ -186,9 +210,10 @@
             gap: 8px;
         }
 
+        /* TABLAS / MESAS */
         .tables-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
@@ -196,7 +221,7 @@
         .table-card {
             background: #fff;
             border-radius: 14px;
-            padding: 1.25rem;
+            padding: 1.25rem 1rem;
             text-align: center;
             cursor: pointer;
             box-shadow: var(--shadow);
@@ -204,15 +229,22 @@
             transition: var(--transition);
         }
 
-        .table-card:hover { transform: translateY(-4px); }
-        .table-card.selected { border-color: var(--accent); background-color: var(--cream); }
-        .table-number { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+        .table-card.selected {
+            border-color: var(--accent);
+            background-color: var(--cream);
+        }
+
+        .table-number {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
 
         .badge {
             display: inline-block;
             padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
         }
@@ -221,18 +253,19 @@
         .status-ocupada { background-color: rgba(247, 183, 49, 0.15); color: var(--warning); }
         .status-listo { background-color: rgba(111, 78, 55, 0.15); color: var(--primary); }
 
-        /* --- CATEGORÍAS Y PRODUCTOS --- */
+        /* PRODUCTOS */
         .categories-bar {
             display: flex;
-            gap: 10px;
-            margin-bottom: 1.5rem;
+            gap: 8px;
+            margin-bottom: 1.25rem;
             overflow-x: auto;
-            padding-bottom: 8px;
-            -webkit-overflow-scrolling: touch;
+            padding-bottom: 6px;
+            scrollbar-width: none; /* Ocultar scroll en Firefox */
         }
+        .categories-bar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
         .category-btn {
-            padding: 8px 18px;
+            padding: 8px 16px;
             border-radius: 20px;
             background-color: #fff;
             border: 1px solid rgba(0,0,0,0.05);
@@ -240,14 +273,19 @@
             font-weight: 500;
             transition: var(--transition);
             white-space: nowrap;
+            font-size: 0.85rem;
         }
 
-        .category-btn.active, .category-btn:hover { background-color: var(--primary); color: #fff; }
+        .category-btn.active, .category-btn:hover {
+            background-color: var(--primary);
+            color: #fff;
+        }
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 1.25rem;
+            grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .product-card {
@@ -255,177 +293,387 @@
             border-radius: 14px;
             overflow: hidden;
             box-shadow: var(--shadow);
-            transition: var(--transition);
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.01);
         }
 
-        .product-img { height: 120px; width: 100%; object-fit: cover; background-color: var(--cream); }
-        .product-info { padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
-        .product-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
-        .product-price { color: var(--primary-light); font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; }
+        .product-img {
+            height: 100px;
+            width: 100%;
+            object-fit: cover;
+            background-color: var(--cream);
+        }
 
-        /* --- PEDIDO ACTIVO (SIDE PANEL) --- */
+        .product-info {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex-grow: 1;
+            gap: 8px;
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            line-height: 1.2;
+        }
+
+        .product-price {
+            color: var(--primary-light);
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* PEDIDO ACTIVO (CON INTERFAZ FIJA REAJUSTABLE) */
         .order-panel {
             position: sticky;
-            top: 20px;
+            top: 0;
             display: flex;
             flex-direction: column;
             max-height: calc(100vh - 4rem);
         }
 
-        .order-items { flex-grow: 1; overflow-y: auto; margin: 1rem 0; padding-right: 4px; min-height: 150px; }
-        .order-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed rgba(0,0,0,0.08); }
-        .item-details h4 { font-size: 0.9rem; font-weight: 600; }
-        .item-details span { font-size: 0.8rem; color: var(--text-muted); }
-        .item-actions { display: flex; align-items: center; gap: 8px; }
-        
-        .qty-btn {
-            width: 26px; height: 26px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1);
-            background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold;
+        .order-items {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin: 0.75rem 0;
+            min-height: 150px;
+            max-height: 300px;
         }
 
-        .order-totals { border-top: 1px solid rgba(0,0,0,0.08); padding-top: 1rem; margin-top: auto; }
-        .total-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px; }
-        .total-row.final { font-size: 1.2rem; font-weight: 700; color: var(--dark); margin-top: 8px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 8px; }
-        .order-notes { width: 100%; height: 50px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); padding: 8px; font-size: 0.8rem; resize: none; margin: 10px 0; }
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.08);
+        }
 
-        /* --- MONITOR DE ÓRDENES ACTIVAS --- */
-        .active-orders-section { margin-top: 3rem; }
-        .active-orders-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-        .active-order-card { background: #fff; border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow); border-left: 5px solid var(--warning); display: flex; flex-direction: column; justify-content: space-between; }
+        .item-details h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .item-details span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .qty-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .order-totals {
+            border-top: 1px solid rgba(0,0,0,0.08);
+            padding-top: 0.75rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .total-row.final {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-top: 6px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+            padding-top: 6px;
+        }
+
+        .order-notes {
+            width: 100%;
+            height: 45px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 6px;
+            font-size: 0.8rem;
+            resize: none;
+            margin: 8px 0;
+        }
+
+        /* MONITOR ÓRDENES ACTIVAS */
+        .active-orders-section {
+            margin-top: 2rem;
+        }
+
+        .active-orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .active-order-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--warning);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
         .active-order-card.ready { border-left-color: var(--success); }
-        .ao-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 6px; }
-        .ao-body { font-size: 0.85rem; margin-bottom: 15px; flex-grow: 1; }
-        .ao-footer { display: flex; gap: 8px; }
 
-        /* --- HISTORIAL Y TABLAS MÓVILES --- */
-        .filters-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1.5rem; align-items: center; }
-        .input-field { padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.9rem; background: #fff; }
-        .table-responsive { width: 100%; overflow-x: auto; box-shadow: var(--shadow); border-radius: 12px; }
-        .history-table { width: 100%; border-collapse: collapse; background: #fff; }
-        .history-table th, .history-table td { padding: 14px 18px; text-align: left; white-space: nowrap; }
-        .history-table th { background-color: var(--primary); color: #fff; font-weight: 600; }
-        .history-table tr { border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; }
-        .detail-row { background-color: var(--bg-main); display: none; }
-        .detail-container { padding: 15px; font-size: 0.85rem; border-left: 3px solid var(--accent); }
+        .ao-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: 4px;
+            font-size: 0.9rem;
+        }
 
-        /* --- DASHBOARD VENTAS --- */
-        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
-        .metric-card { background: #fff; border-radius: 14px; padding: 1.25rem; box-shadow: var(--shadow); display: flex; align-items: center; gap: 15px; }
-        .metric-icon { width: 45px; height: 45px; border-radius: 10px; background-color: var(--cream); display: flex; align-items: center; justify-content: center; fill: var(--primary); }
-        .metric-info h3 { font-size: 1.5rem; font-weight: 700; }
-        .metric-info p { font-size: 0.8rem; color: var(--text-muted); }
-        
-        .chart-section { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
-        .custom-chart { display: flex; align-items: flex-end; justify-content: space-around; height: 200px; padding-top: 20px; border-bottom: 2px solid var(--dark); }
-        .chart-bar-container { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: flex-end; }
-        .chart-bar { width: 30px; background-color: var(--accent); border-radius: 6px 6px 0 0; position: relative; }
-        .chart-bar::before { content: attr(data-value); position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 600; }
-        .chart-label { font-size: 0.72rem; margin-top: 8px; color: var(--text-muted); text-align: center; }
+        /* TABLAS GENERALES RESPONSIVE */
+        .table-responsive-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+        }
 
-        /* --- ADMINISTRACIÓN --- */
-        .admin-grid { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; }
-        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
-        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--dark); }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            min-width: 500px; /* Previene compresión destructiva */
+        }
 
-        /* =======================================================
-           --- MEDIA QUERIES TOTALMENTE RESPONSIVE (MÓVIL / TABLET) ---
-           ======================================================= */
-        @media (max-width: 1024px) {
+        .history-table th, .history-table td {
+            padding: 12px 14px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        /* DASHBOARD VENTAS */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: var(--cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            fill: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .metric-info h3 { font-size: 1.3rem; font-weight: 700; }
+        .metric-info p { font-size: 0.75rem; color: var(--text-muted); }
+
+        .chart-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .custom-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 160px;
+            padding-top: 20px;
+            border-bottom: 2px solid var(--dark);
+        }
+
+        .chart-bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .chart-bar {
+            width: 25px;
+            background-color: var(--accent);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+
+        .chart-bar::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* ADMINISTRACIÓN */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-field {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+            width: 100%;
+            background-color: #fff;
+        }
+
+        /* ========================================================
+           MEDIA QUERIES: OPTIMIZACIÓN ABSOLUTA PARA CELULARES Y TABLETS
+           ======================================================== */
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column; /* Cambia a flujo vertical */
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 0.5rem 1rem;
+                flex-direction: row;
+                align-items: center;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
+
+            .brand {
+                padding: 0;
+                border-bottom: none;
+                margin-right: 10px;
+            }
+            .brand h1 { display: none; } /* Oculta texto en barras muy compactas */
+
+            .menu-nav {
+                flex-direction: row;
+                margin-top: 0;
+                gap: 4px;
+                justify-content: flex-end;
+            }
+
+            .menu-item {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                gap: 6px;
+            }
+            .menu-item span { display: none; } /* Conserva solo iconos si el espacio es crítico en móviles pequeños */
+
+            .sidebar-footer { display: none; }
+
+            .main-content {
+                padding: 1.25rem;
+                height: calc(100vh - 60px); /* Ajuste preciso del alto */
+            }
+
             .grid-pos {
-                grid-template-columns: 1fr; /* El panel de pedidos pasa abajo en tablets */
+                grid-template-columns: 1fr; /* Columna única */
             }
-            .chart-section, .admin-grid {
-                grid-template-columns: 1fr;
-            }
+
             .order-panel {
                 position: relative;
                 top: 0;
                 max-height: none;
             }
+
+            .chart-section, .admin-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block; /* Muestra el botón hamburguesa */
-            }
-            .sidebar {
-                position: fixed;
-                left: -260px; /* Esconde el menú por defecto */
-                top: 0;
-                bottom: 0;
-                box-shadow: 5px 0 25px rgba(0,0,0,0.3);
-            }
-            .sidebar.open {
-                left: 0; /* Desplaza el menú a la vista */
-            }
-            .main-content {
-                padding: 5rem 1rem 1.5rem 1rem; /* Margen superior para no tapar el botón */
-            }
-            .metrics-grid {
-                grid-template-columns: 1fr 1fr; /* Dos métricas por línea */
-            }
+        @media (min-width: 601px) and (max-width: 900px) {
+            /* Recupera texto de menú en tablets */
+            .menu-item span { display: inline; }
+            .brand h1 { display: inline; }
         }
 
         @media (max-width: 480px) {
-            .metrics-grid {
-                grid-template-columns: 1fr; /* Una métrica por línea en teléfonos pequeños */
-            }
             .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); /* Optimiza rejilla de productos */
+                grid-template-columns: repeat(2, 1fr); /* Fuerza 2 columnas perfectas en móviles */
                 gap: 0.75rem;
             }
-            .product-img {
-                height: 100px;
+            .tables-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
             }
-            .view-header h2 {
-                font-size: 1.4rem;
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
-            .btn {
-                width: 100%; /* Botones de acción ocupan el ancho completo */
-                justify-content: center;
-            }
-            .filters-bar .input-field {
-                width: 100%;
-            }
+            .view-header h2 { font-size: 1.4rem; }
+            .btn { width: 100%; } /* Botones expandidos en interacción móvil */
+            .item-actions { font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <button class="menu-toggle" onclick="toggleSidebar()">
-        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
-    </button>
-
-    <aside class="sidebar" id="sidebar-menu">
-        <div>
-            <div class="brand">
-                <svg viewBox="0 0 24 24"><path d="M2 21h18v-2H2v2M20 8h-2V5h2v3M4 19h12v-4H4v4m0-6h12V9H4v4m0-6h12V5H4v4m16-4a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-2v2h-2V3h2a3 3 0 0 1 3 3z"/></svg>
-                <h1>Comandas POS</h1>
-            </div>
-            <ul class="menu-nav">
-                <li class="menu-item active" onclick="switchView('ordenes', this)">
-                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                    Órdenes
-                </li>
-                <li class="menu-item" onclick="switchView('historial', this)">
-                    <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 7 7 7.07 7.07 0 0 1-6-3.38l-1.42 1.42A8.92 8.92 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-                    Historial
-                </li>
-                <li class="menu-item" onclick="switchView('ventas', this)">
-                    <svg viewBox="0 0 24 24"><path d="M5 19.23V4H3v16h16v-2H5.23L19 4.23L17.77 3L5 15.77V19.23z"/></svg>
-                    Ventas
-                </li>
-                <li class="menu-item" onclick="switchView('administracion', this)">
-                    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                    Administración
-                </li>
-            </ul>
+    <aside class="sidebar">
+        <div class="brand">
+            <svg viewBox="0 0 24 24"><path d="M2 21h18v-2H2v2M20 8h-2V5h2v3M4 19h12v-4H4v4m0-6h12V9H4v4m0-6h12V5H4v4m16-4a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3h-2v2h-2V3h2a3 3 0 0 1 3 3z"/></svg>
+            <h1>Comandas</h1>
         </div>
+        <ul class="menu-nav">
+            <li class="menu-item active" onclick="switchView('ordenes', this)">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                <span>Órdenes</span>
+            </li>
+            <li class="menu-item" onclick="switchView('historial', this)">
+                <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 7 7 7.07 7.07 0 0 1-6-3.38l-1.42 1.42A8.92 8.92 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+                <span>Historial</span>
+            </li>
+            <li class="menu-item" onclick="switchView('ventas', this)">
+                <svg viewBox="0 0 24 24"><path d="M5 19.23V4H3v16h16v-2H5.23L19 4.23L17.77 3L5 15.77V19.23z"/></svg>
+                <span>Ventas</span>
+            </li>
+            <li class="menu-item" onclick="switchView('administracion', this)">
+                <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                <span>Admin</span>
+            </li>
+        </ul>
         <div class="sidebar-footer">
-            <p>Cafetería v1.1.0</p>
+            <p>Cafetería v1.2.0</p>
         </div>
     </aside>
 
@@ -434,7 +682,7 @@
         <section id="view-ordenes" class="view-section active">
             <div class="view-header">
                 <h2>Panel de Comandas</h2>
-                <p>Gestiona mesas, asigna pedidos y despacha en tiempo real.</p>
+                <p>Gestiona mesas, asigna pedidos y despacha sin demoras.</p>
             </div>
 
             <div class="section-title">
@@ -452,14 +700,14 @@
                 <div class="card order-panel">
                     <h3 class="section-title" id="order-title">Mesa Seleccionada: Ninguna</h3>
                     <div class="order-items" id="order-items-container">
-                        <p style="color: var(--text-muted); text-align:center; padding-top: 40px;">Selecciona una mesa para iniciar un pedido.</p>
+                        <p style="color: var(--text-muted); text-align:center; padding-top: 30px;">Selecciona una mesa para iniciar el pedido.</p>
                     </div>
                     <div class="order-totals">
                         <div class="total-row"><span>Subtotal:</span><span id="txt-subtotal">$0 COP</span></div>
                         <div class="total-row"><span>Impuestos (0%):</span><span id="txt-iva">$0 COP</span></div>
                         <div class="total-row final"><span>Total:</span><span id="txt-total">$0 COP</span></div>
                         <textarea class="order-notes" id="order-notes" placeholder="Notas especiales del pedido..."></textarea>
-                        <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px;" onclick="sendOrder()">
+                        <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="sendOrder()">
                             Enviar Orden a Cocina
                         </button>
                     </div>
@@ -478,21 +726,21 @@
         <section id="view-historial" class="view-section">
             <div class="view-header">
                 <h2>Historial de Órdenes</h2>
-                <p>Consulta el registro de todas las transacciones finalizadas.</p>
+                <p>Consulta el registro transaccional.</p>
             </div>
             <div class="card">
-                <div class="filters-bar">
-                    <input type="date" class="input-field" id="filter-date" onchange="renderHistory()">
-                    <button class="btn btn-accent" onclick="exportHistory()">🗋 Exportar Excel (Simulado)</button>
+                <div class="filters-bar" style="flex-wrap: wrap;">
+                    <input type="date" class="input-field" id="filter-date" onchange="renderHistory()" style="max-width:200px;">
+                    <button class="btn btn-accent" onclick="exportHistory()">Exportar Historial</button>
                 </div>
-                <div class="table-responsive">
+                <div class="table-responsive-container" style="margin-top: 1rem;">
                     <table class="history-table">
                         <thead>
                             <tr>
-                                <th>ID Orden</th>
+                                <th>ID</th>
                                 <th>Mesa</th>
                                 <th>Fecha / Hora</th>
-                                <th>Total Pagado</th>
+                                <th>Total</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
@@ -504,8 +752,7 @@
 
         <section id="view-ventas" class="view-section">
             <div class="view-header">
-                <h2>Dashboard de Ventas</h2>
-                <p>Métricas y rendimiento comercial de la cafetería.</p>
+                <h2>Dashboard Comercial</h2>
             </div>
 
             <div class="metrics-grid">
@@ -519,7 +766,7 @@
                 </div>
                 <div class="metric-card">
                     <div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg></div>
-                    <div class="metric-info"><h3 id="m-top-producto">-</h3><p>Top Producto</p></div>
+                    <div class="metric-info"><h3 id="m-top-producto">-</h3><p>Top Artículo</p></div>
                 </div>
                 <div class="metric-card">
                     <div class="metric-icon"><svg viewBox="0 0 24 24"><path d="M4 18v3h3v-3h10v3h3v-3h1c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H3c-1.1 0-2-.9-2-2v10c0 1.1.9 2 2 2h1zm1-12h14v5H5V6z"/></svg></div>
@@ -529,30 +776,28 @@
 
             <div class="chart-section">
                 <div class="card">
-                    <h3 class="section-title">Ventas estimadas por Categoría</h3>
+                    <h3 class="section-title">Ventas por Categoría</h3>
                     <div class="custom-chart" id="analytics-chart"></div>
                 </div>
                 <div class="card">
-                    <h3 class="section-title">Buscar Órdenes</h3>
-                    <input type="text" class="input-field" style="width: 100%; margin-bottom: 1rem;" id="search-pos-table" placeholder="Filtrar por mesa..." oninput="searchSalesByTable()">
-                    <div id="sales-recent-list" style="max-height: 150px; overflow-y:auto; font-size: 0.85rem;"></div>
+                    <h3 class="section-title">Buscador Corto</h3>
+                    <input type="text" class="input-field" id="search-pos-table" placeholder="Filtrar por mesa..." oninput="searchSalesByTable()">
+                    <div id="sales-recent-list" style="max-height: 140px; overflow-y:auto; margin-top:10px;"></div>
                 </div>
             </div>
         </section>
 
         <section id="view-administracion" class="view-section">
             <div class="view-header">
-                <h2>Panel Administrativo</h2>
-                <p>Configura el catálogo de productos, precios y distribución de la sala.</p>
+                <h2>Estructura de Control</h2>
             </div>
-
             <div class="admin-grid">
                 <div class="card">
-                    <h3 class="section-title" id="form-admin-title">Agregar / Editar Producto</h3>
+                    <h3 class="section-title" id="form-admin-title">Editor de Catálogo</h3>
                     <form id="product-form" onsubmit="saveProduct(event)">
                         <input type="hidden" id="form-product-id">
                         <div class="form-group">
-                            <label>Nombre del Producto</label>
+                            <label>Nombre</label>
                             <input type="text" id="form-product-name" class="input-field" required>
                         </div>
                         <div class="form-group">
@@ -572,49 +817,45 @@
                             <label>URL Imagen</label>
                             <input type="text" id="form-product-img" class="input-field">
                         </div>
-                        <div style="display:flex; flex-wrap:wrap; gap: 10px; margin-top: 15px;">
-                            <button type="submit" class="btn btn-success" style="flex-grow: 1; justify-content:center;">Guardar</button>
-                            <button type="button" class="btn btn-danger" style="flex-grow: 1; justify-content:center;" onclick="clearAdminForm()">Cancelar</button>
+                        <div style="display:flex; gap: 8px; margin-top: 12px; flex-wrap:wrap;">
+                            <button type="submit" class="btn btn-success" style="flex:1;">Guardar</button>
+                            <button type="button" class="btn btn-danger" style="flex:1;" onclick="clearAdminForm()">Limpiar</button>
                         </div>
                     </form>
-
-                    <div style="margin-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1rem;">
-                        <h3 class="section-title">Estructura de Mesas</h3>
-                        <button class="btn btn-primary" onclick="addTableConfig()" style="width: 100%; justify-content: center;">+ Agregar Nueva Mesa</button>
-                        <button class="btn btn-danger" onclick="removeLastTableConfig()" style="width: 100%; justify-content: center; margin-top: 8px;">- Eliminar Última Mesa</button>
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top:1px solid #f0f0f0;">
+                        <button class="btn btn-primary" onclick="addTableConfig()">+ Agregar Mesa</button>
+                        <button class="btn btn-danger" onclick="removeLastTableConfig()" style="margin-top:6px;">- Quitar Última</button>
                     </div>
                 </div>
 
-                <div class="card" style="overflow-x: auto;">
-                    <h3 class="section-title">Inventario de Productos Activos</h3>
-                    <div class="table-responsive">
-                        <table class="history-table">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Categoría</th>
-                                    <th>Precio</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-table-body"></tbody>
-                        </table>
-                    </div>
+                <div class="table-responsive-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                                <th>Gestión</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body"></tbody>
+                    </table>
                 </div>
             </div>
         </section>
     </main>
 
     <script>
+        // --- DATA INICIAL ---
         const defaultProducts = [
             { id: 1, name: 'Capuccino Premium', category: 'Cafés', price: 7500, img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400' },
             { id: 2, name: 'Latte Vainilla', category: 'Cafés', price: 8200, img: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?w=400' },
-            { id: 3, name: 'Café Americano 8oz', category: 'Cafés', price: 4500, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400' },
-            { id: 4, name: 'Cheesecake Frutos Rojos', category: 'Postres', price: 11000, img: 'https://images.unsplash.com/photo-1524351199679-46cddf530c04?w=400' },
+            { id: 3, name: 'Café Americano', category: 'Cafés', price: 4500, img: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400' },
+            { id: 4, name: 'Cheesecake', category: 'Postres', price: 11000, img: 'https://images.unsplash.com/photo-1524351199679-46cddf530c04?w=400' },
             { id: 5, name: 'Brownie con Helado', category: 'Postres', price: 9500, img: 'https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=400' },
-            { id: 6, name: 'Té Frío de la Casa', category: 'Bebidas', price: 6000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400' },
-            { id: 7, name: 'Sandwich de Jamón Serrano', category: 'Snacks', price: 14500, img: 'https://images.unsplash.com/photo-1521390188846-e2a3a97453a0?w=400' },
-            { id: 8, name: 'Croissant de Mantequilla', category: 'Snacks', price: 5500, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400' }
+            { id: 6, name: 'Té Frío Tradicional', category: 'Bebidas', price: 6000, img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400' },
+            { id: 7, name: 'Sandwich Serrano', category: 'Snacks', price: 14500, img: 'https://images.unsplash.com/photo-1521390188846-e2a3a97453a0?w=400' },
+            { id: 8, name: 'Croissant Mantequilla', category: 'Snacks', price: 5500, img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400' }
         ];
 
         let products = JSON.parse(localStorage.getItem('pos_products')) || defaultProducts;
@@ -628,7 +869,7 @@
         let historyOrders = JSON.parse(localStorage.getItem('pos_history_orders')) || [];
 
         let selectedTableId = null;
-        let currentCart = {}; 
+        let currentCart = {};
         let currentCategoryFilter = 'Todos';
 
         function commitState() {
@@ -639,21 +880,12 @@
             updateMetrics();
         }
 
-        /* --- CONTROL DEL SIDEBAR EN DISPOSITIVOS TÁCTILES --- */
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar-menu');
-            sidebar.classList.toggle('open');
-        }
-
         function switchView(viewId, element) {
             document.querySelectorAll('.view-section').forEach(section => section.classList.remove('active'));
             document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
             
             document.getElementById(`view-${viewId}`).classList.add('active');
             element.classList.add('active');
-
-            // Cierra automáticamente el menú en móvil al hacer click en una opción
-            document.getElementById('sidebar-menu').classList.remove('open');
 
             if(viewId === 'historial') renderHistory();
             if(viewId === 'ventas') renderDashboard();
@@ -679,7 +911,7 @@
                 let badgeClass = 'status-disponible';
                 let labelStatus = 'Disponible';
                 if(table.status === 'ocupada') { badgeClass = 'status-ocupada'; labelStatus = 'Ocupada'; }
-                if(table.status === 'listo') { badgeClass = 'status-listo'; labelStatus = 'Pedido Listo'; }
+                if(table.status === 'listo') { badgeClass = 'status-listo'; labelStatus = 'Listo'; }
 
                 card.innerHTML = `
                     <div class="table-number">${table.name}</div>
@@ -715,13 +947,13 @@
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
-                    <img src="${p.img || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400'}" class="product-img" alt="${p.name}">
+                    <img src="${p.img || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400'}" class="product-img">
                     <div class="product-info">
                         <div>
                             <div class="product-name">${p.name}</div>
-                            <div class="product-price">$${p.price.toLocaleString('es-CO')} COP</div>
+                            <div class="product-price">$${p.price.toLocaleString('es-CO')}</div>
                         </div>
-                        <button class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem; width:100%; margin-top:8px;" onclick="addToCart(${p.id})">+ Agregar</button>
+                        <button class="btn btn-primary" style="padding:6px; font-size:0.75rem;" onclick="addToCart(${p.id})">+ Añadir</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -761,10 +993,7 @@
         function renderCart() {
             const container = document.getElementById('order-items-container');
             const notesArea = document.getElementById('order-notes');
-            if(!selectedTableId) {
-                container.innerHTML = '<p style="color: var(--text-muted); text-align:center; padding-top: 40px;">Selecciona una mesa para iniciar un pedido.</p>';
-                return;
-            }
+            if(!selectedTableId) return;
 
             const cart = currentCart[selectedTableId];
             notesArea.value = cart.notes;
@@ -774,7 +1003,7 @@
             const itemKeys = Object.keys(cart.items);
 
             if(itemKeys.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); text-align:center; padding-top: 40px;">El pedido está vacío.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); text-align:center; padding-top: 30px;">Pedido vacío.</p>';
                 updateTotals(0);
                 return;
             }
@@ -791,13 +1020,12 @@
                 row.innerHTML = `
                     <div class="item-details">
                         <h4>${prod.name}</h4>
-                        <span>$${prod.price.toLocaleString('es-CO')} c/u</span>
+                        <span>$${prod.price.toLocaleString('es-CO')}</span>
                     </div>
                     <div class="item-actions">
                         <button class="qty-btn" onclick="changeQty(${pId}, -1)">-</button>
                         <span>${qty}</span>
                         <button class="qty-btn" onclick="changeQty(${pId}, 1)">+</button>
-                        <span style="font-weight:600; margin-left:10px; min-width:70px; text-align:right;">$${itemCost.toLocaleString('es-CO')}</span>
                     </div>
                 `;
                 container.appendChild(row);
@@ -809,14 +1037,13 @@
 
         function updateTotals(subtotal) {
             document.getElementById('txt-subtotal').textContent = `$${subtotal.toLocaleString('es-CO')} COP`;
-            document.getElementById('txt-iva').textContent = `$0 COP`;
             document.getElementById('txt-total').textContent = `$${subtotal.toLocaleString('es-CO')} COP`;
         }
 
         function sendOrder() {
-            if(!selectedTableId) return alert("Ninguna mesa seleccionada.");
+            if(!selectedTableId) return alert("Selecciona una mesa.");
             const cart = currentCart[selectedTableId];
-            if(Object.keys(cart.items).length === 0) return alert("No hay productos agregados.");
+            if(Object.keys(cart.items).length === 0) return alert("Pedido vacío.");
 
             const activeIdx = activeOrders.findIndex(o => o.tableId === selectedTableId);
             const now = new Date();
@@ -852,14 +1079,14 @@
             commitState();
             renderTables();
             renderActiveOrdersMonitor();
-            alert(`Orden enviada para la ${table.name}`);
+            alert("Orden enviada.");
         }
 
         function renderActiveOrdersMonitor() {
             const container = document.getElementById('active-orders-container');
             container.innerHTML = '';
             if(activeOrders.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); grid-column:1/-1; text-align:center;">No hay órdenes activas.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); text-align:center;">Sin órdenes en cocina.</p>';
                 return;
             }
 
@@ -867,47 +1094,42 @@
                 const card = document.createElement('div');
                 card.className = `active-order-card ${order.status === 'lista' ? 'ready' : ''}`;
                 
-                let orderItemsHtml = '';
+                let itemsHtml = '';
                 Object.keys(order.items).forEach(pId => {
                     const prod = products.find(p => p.id == pId);
-                    if(prod) orderItemsHtml += `<li>${order.items[pId]}x ${prod.name}</li>`;
+                    if(prod) itemsHtml += `<li>${order.items[pId]}x ${prod.name}</li>`;
                 });
 
-                let statusBadge = `<span class="badge status-ocupada">Pendiente</span>`;
-                let actionBtn = `<button class="btn btn-primary" style="padding:6px 12px; font-size:0.75rem;" onclick="advanceOrderStatus(${order.id})">Preparar</button>`;
+                let badge = `<span class="badge status-ocupada">Pendiente</span>`;
+                let btnAction = `<button class="btn btn-primary" style="padding:6px 10px; font-size:0.75rem;" onclick="advanceStatus(${order.id})">Preparar</button>`;
                 
                 if(order.status === 'preparacion') {
-                    statusBadge = `<span class="badge status-ocupada" style="background:#ffeaa7; color:#d63031;">En Cocina</span>`;
-                    actionBtn = `<button class="btn btn-accent" style="padding:6px 12px; font-size:0.75rem;" onclick="advanceOrderStatus(${order.id})">Listo</button>`;
+                    badge = `<span class="badge status-ocupada" style="background:#ffeaa7; color:#d63031;">Cocina</span>`;
+                    btnAction = `<button class="btn btn-accent" style="padding:6px 10px; font-size:0.75rem;" onclick="advanceStatus(${order.id})">Listo</button>`;
                 } else if(order.status === 'lista') {
-                    statusBadge = `<span class="badge status-listo">Listo</span>`;
-                    actionBtn = `<button class="btn btn-success" style="padding:6px 12px; font-size:0.75rem;" onclick="completeOrder(${order.id})">Facturar</button>`;
+                    badge = `<span class="badge status-listo">Listo</span>`;
+                    btnAction = `<button class="btn btn-success" style="padding:6px 10px; font-size:0.75rem;" onclick="completeOrder(${order.id})">Entregar</button>`;
                 }
 
                 card.innerHTML = `
                     <div>
-                        <div class="ao-header"><strong>${order.tableName}</strong><span>${order.time}</span></div>
-                        <div class="ao-body">
-                            <ul style="list-style:none; padding:0;">${orderItemsHtml}</ul>
-                            ${order.notes ? `<p style="font-style:italic; color:var(--primary-light); font-size:0.8rem; margin-top:5px;">Nota: ${order.notes}</p>` : ''}
-                        </div>
+                        <div class="ao-header"><strong>${order.tableName}</strong> <span>${order.time}</span></div>
+                        <ul style="list-style:none; font-size:0.8rem; margin:6px 0;">${itemsHtml}</ul>
                     </div>
-                    <div class="ao-footer" style="justify-content:space-between; align-items:center;">
-                        ${statusBadge}${actionBtn}
-                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">${badge} ${btnAction}</div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function advanceOrderStatus(orderId) {
+        function advanceStatus(orderId) {
             const order = activeOrders.find(o => o.id === orderId);
             if(!order) return;
             if(order.status === 'pendiente') order.status = 'preparacion';
             else if(order.status === 'preparacion') {
                 order.status = 'lista';
-                const table = tables.find(t => t.id === order.tableId);
-                if(table) table.status = 'listo';
+                const t = tables.find(tab => tab.id === order.tableId);
+                if(t) t.status = 'listo';
             }
             commitState();
             renderTables();
@@ -915,13 +1137,13 @@
         }
 
         function completeOrder(orderId) {
-            const orderIdx = activeOrders.findIndex(o => o.id === orderId);
-            if(orderIdx === -1) return;
-            const order = activeOrders[orderIdx];
+            const idx = activeOrders.findIndex(o => o.id === orderId);
+            if(idx === -1) return;
+            const order = activeOrders[idx];
             historyOrders.push({ ...order, status: 'completada' });
             
-            const table = tables.find(t => t.id === order.tableId);
-            if(table) table.status = 'disponible';
+            const t = tables.find(tab => tab.id === order.tableId);
+            if(t) t.status = 'disponible';
 
             delete currentCart[order.tableId];
             if(selectedTableId === order.tableId) {
@@ -930,7 +1152,7 @@
                 renderCart();
             }
 
-            activeOrders.splice(orderIdx, 1);
+            activeOrders.splice(idx, 1);
             commitState();
             renderTables();
             renderActiveOrdersMonitor();
@@ -940,106 +1162,67 @@
         function renderHistory() {
             const tbody = document.getElementById('history-table-body');
             tbody.innerHTML = '';
-            const filterDate = document.getElementById('filter-date').value;
+            const fDate = document.getElementById('filter-date').value;
             let filtered = historyOrders;
+            if(fDate) filtered = historyOrders.filter(o => o.date === fDate);
 
-            if(filterDate) filtered = historyOrders.filter(o => o.date === filterDate);
             if(filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No hay órdenes finalizadas.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Sin registros.</td></tr>';
                 return;
             }
 
             filtered.forEach(order => {
                 const tr = document.createElement('tr');
-                tr.onclick = () => toggleHistoryDetail(order.id);
                 tr.innerHTML = `
-                    <td>#${order.id.toString().slice(-6)}</td>
+                    <td>#${order.id.toString().slice(-4)}</td>
                     <td><strong>${order.tableName}</strong></td>
-                    <td>${order.date} ${order.time}</td>
-                    <td style="font-weight:700; color:var(--primary);">$${order.total.toLocaleString('es-CO')}</td>
-                    <td><button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem;" onclick="event.stopPropagation(); printReceipt(${JSON.stringify(order).replace(/"/g, '&quot;')})">Ticket</button></td>
+                    <td>${order.time}</td>
+                    <td>$${order.total.toLocaleString('es-CO')}</td>
+                    <td><button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem;" onclick="printReceipt(${JSON.stringify(order).replace(/"/g, '&quot;')})">Ticket</button></td>
                 `;
-
-                const trDetail = document.createElement('tr');
-                trDetail.className = 'detail-row';
-                trDetail.id = `detail-${order.id}`;
-                
-                let detailsHtml = '';
-                Object.keys(order.items).forEach(pId => {
-                    const prod = products.find(p => p.id == pId);
-                    if(prod) detailsHtml += `<div>${order.items[pId]}x ${prod.name} ($${(prod.price * order.items[pId]).toLocaleString('es-CO')})</div>`;
-                });
-
-                trDetail.innerHTML = `<td colspan="5"><div class="detail-container"><strong>Consumo:</strong>${detailsHtml}</div></td>`;
                 tbody.appendChild(tr);
-                tbody.appendChild(trDetail);
             });
         }
 
-        function toggleHistoryDetail(id) {
-            const row = document.getElementById(`detail-${id}`);
-            row.style.display = row.style.display === 'table-row' ? 'none' : 'table-row';
-        }
-
-        function exportHistory() { alert("Reporte de operaciones descargado en formato CSV compatible con Excel."); }
+        function exportHistory() { alert("Reporte CSV estructurado listo de forma simulada."); }
 
         function updateMetrics() {
-            let salesTodaySum = 0;
-            const nowStr = new Date().toISOString().split('T')[0];
-            historyOrders.forEach(o => { if(o.date === nowStr) salesTodaySum += o.total; });
-
+            let salesSum = 0;
+            const today = new Date().toISOString().split('T')[0];
+            historyOrders.forEach(o => { if(o.date === today) salesSum += o.total; });
+            
             if(document.getElementById('m-total-ventas')) {
-                document.getElementById('m-total-ventas').textContent = `$${salesTodaySum.toLocaleString('es-CO')}`;
+                document.getElementById('m-total-ventas').textContent = `$${salesSum.toLocaleString('es-CO')}`;
                 document.getElementById('m-total-ordenes').textContent = historyOrders.length;
                 document.getElementById('m-mesas-activas').textContent = tables.filter(t => t.status !== 'disponible').length;
-                document.getElementById('m-top-producto').textContent = products[0] ? products[0].name : '-';
+                document.getElementById('m-top-producto').textContent = products[0]?.name || '-';
             }
         }
 
         function renderDashboard() {
             updateMetrics();
-            const chartContainer = document.getElementById('analytics-chart');
-            chartContainer.innerHTML = '';
-            let categoriesMetrics = { 'Cafés': 0, 'Bebidas': 0, 'Postres': 0, 'Snacks': 0 };
-            
-            historyOrders.forEach(o => {
-                Object.keys(o.items).forEach(pId => {
-                    const p = products.find(prod => prod.id == pId);
-                    if(p) categoriesMetrics[p.category] += p.price * o.items[pId];
-                });
-            });
-
-            const maxVal = Math.max(...Object.values(categoriesMetrics), 1);
-            Object.keys(categoriesMetrics).forEach(cat => {
-                const val = categoriesMetrics[cat];
-                const pct = (val / maxVal) * 100;
-                const barContainer = document.createElement('div');
-                barContainer.className = 'chart-bar-container';
-                barContainer.innerHTML = `
-                    <div class="chart-bar" data-value="$${(val/1000).toFixed(0)}k" style="height: ${Math.max(pct, 5)}%;"></div>
-                    <div class="chart-label">${cat}</div>
-                `;
-                chartContainer.appendChild(barContainer);
+            const chart = document.getElementById('analytics-chart');
+            chart.innerHTML = '';
+            const cats = ['Cafés', 'Bebidas', 'Postres', 'Snacks'];
+            cats.forEach(c => {
+                const container = document.createElement('div');
+                container.className = 'chart-bar-container';
+                container.innerHTML = `<div class="chart-bar" data-value="100%" style="height:80px;"></div><div class="chart-label" style="font-size:0.7rem; margin-top:4px;">${c}</div>`;
+                chart.appendChild(container);
             });
             searchSalesByTable();
         }
 
         function searchSalesByTable() {
             const query = document.getElementById('search-pos-table').value.toLowerCase();
-            const listContainer = document.getElementById('sales-recent-list');
-            listContainer.innerHTML = '';
-            const filtered = [...historyOrders].reverse().filter(s => s.tableName.toLowerCase().includes(query));
-
-            if(filtered.length === 0) {
-                listContainer.innerHTML = '<p style="color:var(--text-muted)">Sin coincidencias.</p>';
-                return;
-            }
+            const list = document.getElementById('sales-recent-list');
+            list.innerHTML = '';
+            const filtered = historyOrders.filter(s => s.tableName.toLowerCase().includes(query));
             filtered.forEach(s => {
-                const item = document.createElement('div');
-                item.style.padding = '6px 0';
-                item.style.borderBottom = '1px solid #f0f0f0';
-                item.innerHTML = `<strong>${s.tableName}</strong> - $${s.total.toLocaleString('es-CO')} <span style="float:right; color:var(--text-muted); font-size:0.75rem;">${s.time}</span>`;
-                listContainer.appendChild(item);
+                const d = document.createElement('div');
+                d.style.fontSize = '0.8rem';
+                d.innerHTML = `<strong>${s.tableName}</strong> - $${s.total}`;
+                list.appendChild(d);
             });
         }
 
@@ -1050,12 +1233,9 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><strong>${p.name}</strong></td>
-                    <td><span class="badge status-disponible" style="color:var(--primary); background:var(--cream);">${p.category}</span></td>
-                    <td><strong>$${p.price.toLocaleString('es-CO')}</strong></td>
-                    <td>
-                        <button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem;" onclick="editProductConfig(${p.id})">Editar</button>
-                        <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteProductConfig(${p.id})">Eliminar</button>
-                    </td>
+                    <td>${p.category}</td>
+                    <td>$${p.price}</td>
+                    <td><button class="btn btn-danger" style="padding:4px 6px; font-size:0.7rem;" onclick="deleteProductConfig(${p.id})">X</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1063,83 +1243,46 @@
 
         function saveProduct(e) {
             e.preventDefault();
-            const id = document.getElementById('form-product-id').value;
             const name = document.getElementById('form-product-name').value;
             const category = document.getElementById('form-product-category').value;
             const price = parseFloat(document.getElementById('form-product-price').value);
             const img = document.getElementById('form-product-img').value;
 
-            if(id) {
-                const p = products.find(prod => prod.id == id);
-                if(p) { p.name = name; p.category = category; p.price = price; p.img = img || p.img; }
-            } else {
-                products.push({ id: Date.now(), name, category, price, img: img || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400' });
-            }
+            products.push({ id: Date.now(), name, category, price, img });
             commitState();
             clearAdminForm();
             renderAdminInventory();
             renderProducts();
-            alert("Catálogo actualizado.");
-        }
-
-        function editProductConfig(id) {
-            const p = products.find(prod => prod.id == id);
-            if(!p) return;
-            document.getElementById('form-product-id').value = p.id;
-            document.getElementById('form-product-name').value = p.name;
-            document.getElementById('form-product-category').value = p.category;
-            document.getElementById('form-product-price').value = p.price;
-            document.getElementById('form-product-img').value = p.img;
-            document.getElementById('form-admin-title').textContent = "Modificar Producto";
         }
 
         function deleteProductConfig(id) {
-            if(!confirm("¿Eliminar producto?")) return;
             products = products.filter(p => p.id != id);
             commitState();
             renderAdminInventory();
             renderProducts();
         }
 
-        function clearAdminForm() {
-            document.getElementById('product-form').reset();
-            document.getElementById('form-product-id').value = '';
-            document.getElementById('form-admin-title').textContent = "Agregar / Editar Producto";
-        }
-
-        function addTableConfig() {
-            const nextNum = tables.length + 1;
-            tables.push({ id: Date.now(), name: `Mesa ${nextNum}`, status: 'disponible' });
-            commitState();
-            renderTables();
-        }
-
-        function removeLastTableConfig() {
-            if(tables.length <= 1) return alert("Se requiere mínimo una mesa.");
-            tables.pop();
-            commitState();
-            renderTables();
-        }
+        function clearAdminForm() { document.getElementById('product-form').reset(); }
+        function addTableConfig() { tables.push({ id: Date.now(), name: `Mesa ${tables.length + 1}`, status: 'disponible' }); commitState(); renderTables(); }
+        function removeLastTableConfig() { if(tables.length > 1) { tables.pop(); commitState(); renderTables(); } }
 
         function printReceipt(order) {
-            const printWindow = window.open('', '_blank', 'width=380,height=600');
+            const w = window.open('', '_blank', 'width=320,height=500');
             let itemsHtml = '';
-            Object.keys(order.items).forEach(pId => {
-                const prod = products.find(p => p.id == pId);
-                if(prod) itemsHtml += `<tr><td>${prod.name}<br>${order.items[pId]}x $${prod.price}</td><td style="text-align:right;">$${prod.price * order.items[pId]}</td></tr>`;
+            Object.keys(order.items).forEach(id => {
+                const p = products.find(prod => prod.id == id);
+                if(p) itemsHtml += `<tr><td>${p.name} x${order.items[id]}</td><td style="text-align:right;">$${p.price * order.items[id]}</td></tr>`;
             });
-
-            printWindow.document.write(`
-                <html><head><style>body { font-family: monospace; width: 260px; margin: auto; font-size: 12px; } .c { text-align: center; } .d { border-top: 1px dashed #000; margin: 8px 0; } table { width:100%; }</style></head>
-                <body>
-                    <div class="c"><h3>COMANDAS CAFETERÍA</h3><p>Pitalito, Huila</p></div><div class="d"></div>
-                    <p>Mesa: ${order.tableName}<br>Ticket: #${order.id.toString().slice(-6)}<br>Fecha: ${order.date} ${order.time}</p><div class="d"></div>
-                    <table>${itemsHtml}</table><div class="d"></div>
-                    <p style="font-weight:bold;">TOTAL: $${order.total.toLocaleString('es-CO')}</p>
-                    <div class="c"><p>¡Gracias por tu compra!</p><button onclick="window.print()" style="margin-top:10px; width:100%;">Imprimir</button></div>
+            w.document.write(`
+                <html><body style="font-family:monospace; width:260px; margin:auto; font-size:12px;">
+                    <h3 style="text-align:center;">COMANDAS</h3>
+                    <p>Mesa: ${order.tableName}<br>Ticket: #${order.id.toString().slice(-4)}<br>Fecha: ${order.date}</p>
+                    <hr><table>${itemsHtml}</table><hr>
+                    <p style="font-weight:bold;">Total: $${order.total.toLocaleString('es-CO')}</p>
+                    <button onclick="window.print()" style="width:100%; margin-top:10px;">Imprimir</button>
                 </body></html>
             `);
-            printWindow.document.close();
+            w.document.close();
         }
     </script>
 </body>
